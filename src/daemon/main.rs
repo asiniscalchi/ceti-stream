@@ -175,5 +175,5 @@ fn main() -> std::io::Result<()>{
     
     println!("Goodbye!");
    
-    return Ok(())
+    Ok(())
 }

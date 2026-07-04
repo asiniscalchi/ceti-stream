@@ -2,31 +2,31 @@ use std::time::Duration;
 
 use libc::{c_char, c_int};
 
-pub const BATTERY_SHM_NAME : *const c_char = b"/battery_shm\0".as_ptr() as *const c_char;
-pub const BATTERY_SEM_NAME : *const c_char = b"/battery_sem\0".as_ptr() as *const c_char;
+pub const BATTERY_SHM_NAME : *const c_char = c"/battery_shm".as_ptr();
+pub const BATTERY_SEM_NAME : *const c_char = c"/battery_sem".as_ptr();
 pub const BATTERY_SAMPLING_PERIOD: Duration = Duration::from_secs(1);
 
 pub const ECG_NUM_BUFFER: usize = 2;
 pub const ECG_BUFFER_LENGTH: usize = 10000;
 
-pub const LIGHT_SHM_NAME: *const c_char =  b"/light_shm".as_ptr() as *const c_char;
-pub const LIGHT_SEM_NAME: *const c_char =  b"/light_sem".as_ptr() as *const c_char;
+pub const LIGHT_SHM_NAME: *const c_char =  c"/light_shm".as_ptr();
+pub const LIGHT_SEM_NAME: *const c_char =  c"/light_sem".as_ptr();
 pub const LIGHT_SAMPLING_PERIOD: Duration = Duration::from_secs(1);
 
-pub const PRESSURE_SHM_NAME: *const c_char =  b"/pressure_shm".as_ptr() as *const c_char;
-pub const PRESSURE_SEM_NAME: *const c_char =  b"/pressure_sem".as_ptr() as *const c_char;
+pub const PRESSURE_SHM_NAME: *const c_char =  c"/pressure_shm".as_ptr();
+pub const PRESSURE_SEM_NAME: *const c_char =  c"/pressure_sem".as_ptr();
 pub const PRESSURE_SAMPLING_PERIOD: Duration = Duration::from_secs(1);
 
-pub const IMU_QUAT_SHM_NAME: *const c_char =  b"/imu_quat_shm".as_ptr() as *const c_char;
-pub const IMU_QUAT_SEM_NAME: *const c_char =  b"/imu_quat_sample_sem".as_ptr() as *const c_char;
+pub const IMU_QUAT_SHM_NAME: *const c_char =  c"/imu_quat_shm".as_ptr();
+pub const IMU_QUAT_SEM_NAME: *const c_char =  c"/imu_quat_sample_sem".as_ptr();
 pub const IMU_QUATERNION_SAMPLE_PERIOD_US: Duration = Duration::from_millis(5); // rate for the computed orientation
 
-pub const IMU_ACCEL_SHM_NAME: *const c_char =  b"/imu_accel_shm".as_ptr() as *const c_char;
-pub const IMU_ACCEL_SEM_NAME: *const c_char =  b"/imu_accel_sample_sem".as_ptr() as *const c_char;
-pub const IMU_GYRO_SHM_NAME: *const c_char =  b"/imu_gyro_shm".as_ptr() as *const c_char;
-pub const IMU_GYRO_SEM_NAME: *const c_char =  b"/imu_gyro_sample_sem".as_ptr() as *const c_char;
-pub const IMU_MAG_SHM_NAME: *const c_char =  b"/imu_mag_shm".as_ptr() as *const c_char;
-pub const IMU_MAG_SEM_NAME: *const c_char =  b"/imu_mag_sample_sem".as_ptr() as *const c_char;
+pub const IMU_ACCEL_SHM_NAME: *const c_char =  c"/imu_accel_shm".as_ptr();
+pub const IMU_ACCEL_SEM_NAME: *const c_char =  c"/imu_accel_sample_sem".as_ptr();
+pub const IMU_GYRO_SHM_NAME: *const c_char =  c"/imu_gyro_shm".as_ptr();
+pub const IMU_GYRO_SEM_NAME: *const c_char =  c"/imu_gyro_sample_sem".as_ptr();
+pub const IMU_MAG_SHM_NAME: *const c_char =  c"/imu_mag_shm".as_ptr();
+pub const IMU_MAG_SEM_NAME: *const c_char =  c"/imu_mag_sample_sem".as_ptr();
 pub const IMU_9DOF_SAMPLE_PERIOD_US: Duration = Duration::from_millis(2); // rate for the accelerometer/gyroscope/magnetometer
 
 #[derive(Debug, Clone)]

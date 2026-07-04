@@ -10,9 +10,8 @@ use libc::{c_char, off_t, sem_t};
 
 use super::ceti::*;
 
-const ECG_SHM_NAME: *const c_char = b"/ecg_shm\0".as_ptr() as *const c_char;
-const ECG_SAMPLE_SEM_NAME: *const c_char = b"/ecg_sample_sem\0".as_ptr() as *const c_char;
-const ECG_BLOCK_SEM_NAME: *const c_char = b"/ecg_page_sem\0".as_ptr() as *const c_char;
+const ECG_SHM_NAME: *const c_char = c"/ecg_shm".as_ptr();
+const ECG_SAMPLE_SEM_NAME: *const c_char = c"/ecg_sample_sem".as_ptr();
 
 const UDP_PACKET_SIZE_MAX: usize = 1500;
 const SAMPLES_PER_PACKET : usize = UDP_PACKET_SIZE_MAX/size_of::<CetiEcgSample>();
@@ -114,5 +113,5 @@ pub fn tx_thread(
     }
 
     println!("ECG Streaming thread has been stopped");
-    return Ok(())
+    Ok(())
 }

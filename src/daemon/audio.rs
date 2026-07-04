@@ -8,14 +8,14 @@ use libc::{ftruncate, mmap, shm_open, sem_open, sem_wait};
 use libc::{O_RDWR, S_IRUSR, PROT_READ, MAP_SHARED};
 use libc::{c_char, c_int, off_t, sem_t};
 
-const AUDIO_SHM_NAME: *const c_char = b"/audio_shm\0".as_ptr() as *const c_char; 
+const AUDIO_SHM_NAME: *const c_char = c"/audio_shm".as_ptr();
 const AUDIO_CHANNELS: usize = 3;
 //multiple of AUDIO_LCM_BYTES closest to 75 seconds @ 16-bit, 96kSPS, (14401536)
 const AUDIO_BUFFER_SIZE_BYTES_PER_CHANNEL: usize = 14401536;
 const AUDIO_BUFFER_SIZE_BYTES: usize = AUDIO_CHANNELS*AUDIO_BUFFER_SIZE_BYTES_PER_CHANNEL;
 const AUDIO_BUFFER_BLOCK_SIZE_BYTES: usize = 512*32;
 
-const AUDIO_BLOCK_SEM_NAME: *const c_char = b"/audio_block_sem\0".as_ptr() as *const c_char;
+const AUDIO_BLOCK_SEM_NAME: *const c_char = c"/audio_block_sem".as_ptr();
 #[repr(C)]
 struct CetiAudioBuffer{
     pub page: c_int,
@@ -62,7 +62,7 @@ pub fn tx_thread(
                 let block = unsafe {(*audio_addr).block as usize};
                 write_offset = page * AUDIO_BUFFER_SIZE_BYTES + block*AUDIO_BUFFER_BLOCK_SIZE_BYTES;
                 //align to full sample
-                read_offset = (write_offset + 5)/6;
+                read_offset = write_offset.div_ceil(6);
                 read_offset *= 6;
                 assert_eq!(read_offset % 6, 0);
                 
@@ -131,5 +131,5 @@ pub fn tx_thread(
         stop = *stop_flag.lock().unwrap();
     }
     println!("Audio Streaming thread has been stopped");
-    return Ok(())
+    Ok(())
 }

@@ -3,7 +3,7 @@
 // [ ]
 
 use std::io::Write;
-use std::net::{IpAddr, TcpStream, UdpSocket};
+use std::net::{TcpStream, UdpSocket};
 use std::thread::sleep;
 use std::time::Duration;
 use rodio::{OutputStream, Sink};
@@ -17,7 +17,7 @@ const AUDIO_SAMPLE_RATE_SPS: usize = 96000;
 const AUDIO_MAX_CHANNELS: usize = 3;
 const AUDIO_SAMPLE_SIZE_BYTES: usize = 2 * AUDIO_MAX_CHANNELS;
 const AUDIO_BUFFER_MIN_SIZE_SAMPLES :usize = AUDIO_BUFFER_SIZE_MS * AUDIO_SAMPLE_RATE_SPS / 1000;
-const AUDIO_BUFFER_SIZE_SAMPLES :usize = PACKET_SIZE_SAMPLES*((AUDIO_BUFFER_MIN_SIZE_SAMPLES + PACKET_SIZE_SAMPLES - 1) / PACKET_SIZE_SAMPLES);
+const AUDIO_BUFFER_SIZE_SAMPLES :usize = PACKET_SIZE_SAMPLES*AUDIO_BUFFER_MIN_SIZE_SAMPLES.div_ceil(PACKET_SIZE_SAMPLES);
 const AUDIO_BUFFER_SIZE_BYTES: usize = AUDIO_BUFFER_SIZE_SAMPLES * AUDIO_SAMPLE_SIZE_BYTES;
 const AUDIO_BUFFER_SIZE_PACKETS: usize  = AUDIO_BUFFER_SIZE_BYTES/PACKET_SIZE_BYTES;
 
@@ -44,13 +44,12 @@ fn main() -> std::io::Result<()> {
     
     let mut rx_buffer = [0; 1496];
     let mut start_index : Option<usize> = None;
-    let mut current_index = 0;
-    
+
     // tcp_socket.write(b"stop")?;
     println!("Starting loop");
     loop {
         let size = udp_socket.recv(& mut rx_buffer).expect("couldn't recv");
-        if size <= 0 {
+        if size == 0 {
             break;
         }
          
@@ -71,19 +70,18 @@ fn main() -> std::io::Result<()> {
     
 
         //place in raw audio buffer
-        current_index = packet_index as usize - start_index.unwrap();
+        let current_index = packet_index as usize - start_index.unwrap();
         if current_index == 0xFFFF {
             let mut sub_request : [u8; 10] = *b"unaudio:\0\0";
             sub_request[8..].copy_from_slice(&udp_socket.local_addr().unwrap().port().to_be_bytes());
-            tcp_socket.write(&sub_request)?;
+            tcp_socket.write_all(&sub_request)?;
             break;
         }
 
         if current_index == AUDIO_BUFFER_SIZE_PACKETS  {
-            start_index = Some(current_index);
             break;
         }
-        let processed_audio : Vec<i16> = rx_buffer[4 .. 4 + packet_size as usize]
+        let processed_audio : Vec<i16> = rx_buffer[4 .. 4 + packet_size]
             .chunks_exact(2)
             .map(|b| {i16::from_be_bytes([b[0], b[1]])})
             // .map(|s| {s.saturating_mul(4)})
@@ -95,7 +93,7 @@ fn main() -> std::io::Result<()> {
     }
 
     sleep(Duration::from_secs(5));
-    tcp_socket.write(b"stop")?;
+    tcp_socket.write_all(b"stop")?;
     println!("Goodbye!!");
-    return Ok(());
+    Ok(())
 }       

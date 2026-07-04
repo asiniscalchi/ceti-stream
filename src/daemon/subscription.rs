@@ -2,6 +2,7 @@ use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpListener};
 use std::sync::{Arc, Mutex};
 
+#[allow(clippy::too_many_arguments)] // one subscriber list per sensor stream
 pub fn tcp_handler(
     stop_flag : Arc<Mutex<bool>>,
     audio_subs : Arc<Mutex<Vec<SocketAddr>>>,
@@ -24,8 +25,8 @@ pub fn tcp_handler(
                 Ok(mut stream) => {
                     println!("New connection: {}", stream.peer_addr().unwrap());
                     let mut data = [0u8; 1500];
-                    stream.read(&mut data)?;
-                    let input_string = String::from_utf8_lossy(&data);
+                    let len = stream.read(&mut data)?;
+                    let input_string = String::from_utf8_lossy(&data[..len]);
                     let mut input = input_string.split_whitespace();
                     match input.next() {
                         Some("stop") => {
@@ -251,5 +252,5 @@ pub fn tcp_handler(
         stop  = *stop_flag.lock().unwrap();
     }
     println!("Subscription Handler stopped!");
-    return Ok(());
+    Ok(())
 }

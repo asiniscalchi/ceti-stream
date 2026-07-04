@@ -8,6 +8,8 @@ use libc::{ftruncate, mmap, shm_open, close, sem_open, sem_wait};
 use libc::{O_RDWR, S_IRUSR, PROT_READ, MAP_SHARED, MAP_FAILED, SEM_FAILED};
 use libc::{c_char, off_t, sem_t};
 
+pub type SubscriberList = Arc<Mutex<Vec<SocketAddr>>>;
+
 pub struct ForwardThread {
     pub name: &'static str,
     pub shm_name : *const c_char,
@@ -36,7 +38,7 @@ impl ForwardThread {
             }
 
             let _res = close(fd);
-            return Ok(addr as *const u8);
+            Ok(addr as *const u8)
         }
     }
     
@@ -46,12 +48,12 @@ impl ForwardThread {
             if sem == SEM_FAILED {
                 return Err(io::Error::last_os_error());
             }
-            return Ok(sem);
+            Ok(sem)
         }
     }
 
-    pub fn create(& self) -> impl Fn(Arc<Mutex<Vec<SocketAddr>>>, Arc<Mutex<bool>>) -> std::io::Result<()> + '_ {
-        return |dest_addr, stop_flag|  {
+    pub fn create(& self) -> impl Fn(SubscriberList, Arc<Mutex<bool>>) -> std::io::Result<()> + '_ {
+        |dest_addr, stop_flag|  {
             //create udp socket
             let socket = UdpSocket::bind("0.0.0.0:0")?;
             let local_address = socket.local_addr()?;
@@ -80,7 +82,7 @@ impl ForwardThread {
 
                     //send messages 
                     for dest_addr in dest_list.iter(){
-                        socket.send_to(&tx_buffer, dest_addr)?;
+                        socket.send_to(tx_buffer, dest_addr)?;
                     }
                 }
                 
@@ -96,7 +98,7 @@ impl ForwardThread {
                 stop = *stop_flag.lock().unwrap();
             }
             println!("{:?} thread complete!", self.name);
-            return Ok(());
-        };
+            Ok(())
+        }
     }
 }
