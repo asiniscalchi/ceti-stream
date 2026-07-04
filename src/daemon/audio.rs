@@ -105,11 +105,11 @@ pub fn tx_thread(
             //copy audio into buffer
             //check if wrapped
             if (write_offset < read_offset) && (2*AUDIO_BUFFER_SIZE_BYTES - read_offset) < remaining_bytes {
-                buffer[4..4+(2*AUDIO_BUFFER_SIZE_BYTES - read_offset)].copy_from_slice(unsafe{&(*audio_addr).data[read_offset..2*AUDIO_BUFFER_SIZE_BYTES]});
+                buffer[4..4+(2*AUDIO_BUFFER_SIZE_BYTES - read_offset)].copy_from_slice(unsafe{&(&(*audio_addr).data)[read_offset..2*AUDIO_BUFFER_SIZE_BYTES]});
                 remaining_bytes -= 2*AUDIO_BUFFER_SIZE_BYTES - read_offset;
                 read_offset = 0;
             }
-            buffer[4+(1494-remaining_bytes)..].copy_from_slice(unsafe{&(*audio_addr).data[read_offset..(read_offset + remaining_bytes)]});
+            buffer[4+(1494-remaining_bytes)..].copy_from_slice(unsafe{&(&(*audio_addr).data)[read_offset..(read_offset + remaining_bytes)]});
             read_offset = (read_offset + remaining_bytes) % (2*AUDIO_BUFFER_SIZE_BYTES);
             
             //send to all subscribed upd addresses
